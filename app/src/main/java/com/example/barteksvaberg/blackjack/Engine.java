@@ -12,13 +12,13 @@ public class Engine {
 
     public int numberOfAIPlayers = 2;
     public ArrayList<Player> players = new ArrayList<>();
-    public BlackJackDeck deck;
+    public Deck deck;
     Dealer dealer = new Dealer();
     private int aiPlayerStartCredit = 200;
     private int humanPlayerStartCredit = 200;
 
     public void initNewGame() {
-        deck = new BlackJackDeck();
+        deck = new Deck();
         deck.shuffle();
 
         for (int i = 0; i < numberOfAIPlayers; i++) {
@@ -57,12 +57,12 @@ public class Engine {
         private int credit;
 
         public class Hand {
-            protected List<BlackJackDeck.BlackJackCard> cards = new ArrayList<>();
+            protected List<Deck.Card> cards = new ArrayList<>();
 
             protected int handValue() {
                 int handValue = 0;
-                for (BlackJackDeck.BlackJackCard card: cards) {
-                    handValue += card.getBlackJackNumericValue();
+                for (Deck.Card card: cards) {
+                    handValue += getBlackJackNumericValue(card);
                 }
                 return  handValue;
             }
@@ -82,6 +82,14 @@ public class Engine {
             protected Boolean didDoubleDown = false;
 
             protected int ante;
+
+            protected boolean canSplit() {
+                return cards.size() == 2 && (getBlackJackNumericValue(cards.get(0)) == getBlackJackNumericValue(cards.get(1)));
+            }
+
+            protected boolean canDoubleDown() {
+                return handValue() <=11;
+            }
         }
         public ArrayList<Hand> hands = new ArrayList<>();
 
@@ -107,6 +115,7 @@ public class Engine {
     public class Dealer extends Player {
 
         public void initialDeal() {
+
             for (Player player: players) {
                 player.hands.add(new Hand());
             }
@@ -140,16 +149,20 @@ public class Engine {
 
         public void hit(Player.Hand hand) {
             if (deck.cards.size() == 0) {
-                deck = new BlackJackDeck();
+                deck = new Deck();
                 deck.shuffle();
             }
-            hand.cards.add(deck.cards.get(0));
-            deck.cards.remove(0);
+            hand.cards.add(deck.dealTopCard());
         }
 
         @Override
         public void takeTurn() {
             for (Hand hand: hands) {
+                if (hiddenCard.cards.size() <0 ) {
+                    Deck.Card card = hiddenCard.cards.get(0);
+                    hand.cards.add(card);
+                    hiddenCard.cards.clear();
+                }
                 while (!hand.isDone()) {
                     if (hand.handValue() <= 16) {
                         hit(hand);
@@ -182,10 +195,10 @@ public class Engine {
         public void takeTurn() {
             for (Hand hand: hands) {
                 while (!hand.isDone()) {
-                    if (canSplit(hand) && shouldSplit(hand)) {
+                    if (hand.canSplit() && shouldSplit(hand)) {
                         split(hand);
                     }
-                    if (canDoubleDown(hand) && shouldDoubleDown(hand)) {
+                    if (hand.canDoubleDown() && shouldDoubleDown(hand)) {
                         doubleDown(hand, hand.ante);
                     }
                     if (hand.handValue() <= 16) {
@@ -204,14 +217,6 @@ public class Engine {
         }
     }
 
-    private boolean canSplit(Player.Hand hand) {
-        return hand.cards.size() == 2 && (hand.cards.get(0).getBlackJackNumericValue() == hand.cards.get(1).getBlackJackNumericValue());
-    }
-
-    private boolean canDoubleDown(Player.Hand hand) {
-        return hand.handValue() <=11;
-    }
-
     public class HumanPlayer extends Player {
 
         @Override
@@ -220,4 +225,35 @@ public class Engine {
         }
     }
 
+    public int getBlackJackNumericValue(Deck.Card card) {
+        switch (card.getFaceValue()) {
+            case TWO:
+                return 2;
+            case THREE:
+                return 3;
+            case FOUR:
+                return 4;
+            case FIVE:
+                return 5;
+            case SIX:
+                return 6;
+            case SEVEN:
+                return 7;
+            case EIGHT:
+                return 8;
+            case NINE:
+                return 9;
+            case TEN:
+                return 10;
+            case JACK:
+                return 10;
+            case QUEEN:
+                return 10;
+            case KING:
+                return 10;
+            case ACE:
+                return 11;
+        }
+        return 0;
+    }
 }

@@ -21,7 +21,7 @@ public class Deck {
         Collections.shuffle(cards);
     }
 
-    public Card topCard() {
+    public Card dealTopCard() {
         Card card = cards.get(0);
         cards.remove(card);
         return card;
