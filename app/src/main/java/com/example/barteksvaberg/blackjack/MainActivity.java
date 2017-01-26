@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private String playerStatus(Engine.Player player) {
         String playerName = player.name;
         String cardString = "";
-        for (Deck.Card card: player.hands.get(0).cards) {
+        for (Card card: player.hands.get(0).cards) {
             cardString += card.toString() + "\n";
         }
         int value = player.hands.get(0).handValue();
