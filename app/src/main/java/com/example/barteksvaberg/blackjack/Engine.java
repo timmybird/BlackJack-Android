@@ -57,18 +57,18 @@ public class Engine {
         private int credit;
 
         public class Hand {
-            protected List<Deck.Card> cards = new ArrayList<>();
+            protected List<Card> cards = new ArrayList<>();
 
             protected int handValue() {
                 int handValue = 0;
-                for (Deck.Card card: cards) {
+                for (Card card: cards) {
                     handValue += getBlackJackNumericValue(card);
                 }
                 return  handValue;
             }
 
             protected boolean isBust() {
-                return (handValue() <= 21);
+                return (handValue() > 21);
             }
 
             protected Boolean isBlackJack() {
@@ -159,7 +159,7 @@ public class Engine {
         public void takeTurn() {
             for (Hand hand: hands) {
                 if (hiddenCard.cards.size() <0 ) {
-                    Deck.Card card = hiddenCard.cards.get(0);
+                    Card card = hiddenCard.cards.get(0);
                     hand.cards.add(card);
                     hiddenCard.cards.clear();
                 }
@@ -225,7 +225,7 @@ public class Engine {
         }
     }
 
-    public int getBlackJackNumericValue(Deck.Card card) {
+    public int getBlackJackNumericValue(Card card) {
         switch (card.getFaceValue()) {
             case TWO:
                 return 2;
